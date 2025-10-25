@@ -1,0 +1,28 @@
+# Flutter/Dart/Pub related
+.dart_tool/
+.packages
+.pub-cache/
+build/
+coverage/
+**/Generated.xcconfig
+**/flutter_export_environment.sh
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.flutter-plugins-dependencies
+**/.generated/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Environment configuration
+.env
+.env.*
+!.env.example
+
+# Platform-specific
+android/app/debug.keystore
+
+# Misc
+*.log
