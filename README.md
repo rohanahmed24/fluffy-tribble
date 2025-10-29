@@ -20,7 +20,9 @@ A secure Flutter application for generating custom imagery via the Ideogram API.
 3. (Optional) Create a `.env` file in the project root to override defaults. By default the app falls back to `.env.example`:
    ```env
    IDEOGRAM_BASE_URL=https://api.ideogram.ai/v1/images
+   IDEOGRAM_TIMEOUT_SECONDS=30
    ```
+   `IDEOGRAM_BASE_URL` must use HTTPS. Any invalid or insecure value automatically falls back to the default endpoint. Adjust `IDEOGRAM_TIMEOUT_SECONDS` to configure how long the client waits for Ideogram responses.
 4. Run the app:
    ```bash
    flutter run

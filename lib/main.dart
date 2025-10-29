@@ -1,44 +1,26 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
+import 'config/app_config.dart';
 import 'screens/home_screen.dart';
 import 'state/generation_state.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await _bootstrapEnvironment();
+  final config = await AppConfig.load();
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => GenerationState()..loadApiKey(),
+    MultiProvider(
+      providers: [
+        Provider<AppConfig>.value(value: config),
+        ChangeNotifierProvider(
+          create: (context) =>
+              GenerationState(config: context.read<AppConfig>())..loadApiKey(),
+        ),
+      ],
       child: const IdeogramApp(),
     ),
   );
-}
-
-Future<void> _bootstrapEnvironment() async {
-  try {
-    await dotenv.load(fileName: '.env');
-    return;
-  } on FlutterError catch (error) {
-    debugPrint('Failed to load .env asset: ${error.message}');
-  } on FileSystemException catch (error) {
-    debugPrint('Failed to read .env file: ${error.message}');
-  }
-
-  if (!dotenv.isInitialized) {
-    try {
-      await dotenv.load(fileName: '.env.example');
-    } on FlutterError catch (error) {
-      debugPrint('Failed to load .env.example asset: ${error.message}');
-    } on FileSystemException catch (error) {
-      debugPrint('Failed to read .env.example file: ${error.message}');
-    }
-  }
 }
 
 class IdeogramApp extends StatelessWidget {

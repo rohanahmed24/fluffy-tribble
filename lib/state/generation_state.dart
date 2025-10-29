@@ -1,21 +1,22 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../api/ideogram_api_client.dart';
+import '../config/app_config.dart';
 import '../services/secure_storage_service.dart';
 
 class GenerationState extends ChangeNotifier {
-  GenerationState({IdeogramApiClient? client, SecureStorageService? storage})
-    : _client =
-          client ??
-          IdeogramApiClient(
-            baseUrl:
-                dotenv.env['IDEOGRAM_BASE_URL'] ??
-                'https://api.ideogram.ai/v1/images',
-          ),
-      _storage = storage ?? const SecureStorageService();
+  GenerationState({
+    required AppConfig config,
+    IdeogramApiClient? client,
+    SecureStorageService? storage,
+  })  : _client = client ??
+            IdeogramApiClient(
+              baseUri: config.baseUrl,
+              timeout: config.requestTimeout,
+            ),
+        _storage = storage ?? const SecureStorageService();
 
   final IdeogramApiClient _client;
   final SecureStorageService _storage;
@@ -54,8 +55,18 @@ class GenerationState extends ChangeNotifier {
     required ImageStyle style,
     double aspectRatio = 1.0,
   }) async {
+    if (_isLoading) {
+      return;
+    }
+
     if (prompt.trim().isEmpty) {
       _error = 'Prompt cannot be empty.';
+      notifyListeners();
+      return;
+    }
+
+    if (!_isValidAspectRatio(aspectRatio)) {
+      _error = 'Aspect ratio must be between 0.25 and 4.0.';
       notifyListeners();
       return;
     }
@@ -78,6 +89,9 @@ class GenerationState extends ChangeNotifier {
         style: style,
         aspectRatio: aspectRatio,
       );
+      if (_images.isEmpty) {
+        _error = 'No secure image URLs were returned. Try another prompt.';
+      }
     } catch (error, stackTrace) {
       debugPrint('Image generation failed: $error\n$stackTrace');
       _error = 'Failed to generate image. Please try again later.';
@@ -107,4 +121,6 @@ class GenerationState extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  bool _isValidAspectRatio(double ratio) => ratio >= 0.25 && ratio <= 4.0;
 }

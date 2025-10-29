@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../api/ideogram_api_client.dart';
 import '../state/generation_state.dart';
+import '../widgets/api_key_dialog.dart';
 import '../widgets/generation_form.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -67,79 +68,13 @@ class HomeScreen extends StatelessWidget {
 
   Future<void> _showApiKeyDialog(BuildContext context) async {
     final state = context.read<GenerationState>();
-    final controller = TextEditingController(text: state.apiKey ?? '');
     await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Ideogram API Key'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'API Key',
-                hintText: 'ideogram-secret-...',
-              ),
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () async {
-                final jsonController = TextEditingController();
-                await showDialog<void>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Import from JSON'),
-                    content: TextField(
-                      controller: jsonController,
-                      maxLines: 4,
-                      decoration: const InputDecoration(
-                        hintText: '{ "ideogramApiKey": "..." }',
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
-                      ),
-                      FilledButton(
-                        onPressed: () {
-                          state.importKeyFromJson(jsonController.text);
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Import'),
-                      ),
-                    ],
-                  ),
-                );
-              },
-              child: const Text('Import from JSON'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              state.deleteKey();
-              Navigator.of(context).pop();
-            },
-            child: const Text('Delete'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              state.updateApiKey(controller.text);
-              Navigator.of(context).pop();
-            },
-            child: const Text('Save'),
-          ),
-        ],
+      builder: (context) => ApiKeyDialog(
+        initialKey: state.apiKey,
+        onDelete: state.deleteKey,
+        onSave: state.updateApiKey,
+        onImportJson: state.importKeyFromJson,
       ),
     );
   }
@@ -179,7 +114,21 @@ class _ImageGrid extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.network(image.url, fit: BoxFit.cover),
+              Image.network(
+                image.url,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) {
+                    return child;
+                  }
+                  return const Center(child: CircularProgressIndicator());
+                },
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: Colors.black12,
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.broken_image_outlined),
+                ),
+              ),
               if (image.prompt != null)
                 Align(
                   alignment: Alignment.bottomCenter,

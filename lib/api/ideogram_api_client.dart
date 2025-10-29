@@ -4,11 +4,16 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class IdeogramApiClient {
-  IdeogramApiClient({required this.baseUrl, http.Client? httpClient})
-    : _httpClient = httpClient ?? http.Client();
+  IdeogramApiClient({
+    required this.baseUri,
+    http.Client? httpClient,
+    Duration? timeout,
+  }) : _httpClient = httpClient ?? http.Client(),
+       _timeout = timeout ?? const Duration(seconds: 30);
 
-  final String baseUrl;
+  final Uri baseUri;
   final http.Client _httpClient;
+  final Duration _timeout;
 
   Future<List<GeneratedImage>> generateImage({
     required String apiKey,
@@ -16,7 +21,6 @@ class IdeogramApiClient {
     required ImageStyle style,
     double aspectRatio = 1.0,
   }) async {
-    final uri = Uri.parse(baseUrl);
     final requestBody = jsonEncode(<String, dynamic>{
       'prompt': prompt,
       'image_width': (1024 * aspectRatio).round(),
@@ -24,14 +28,16 @@ class IdeogramApiClient {
       'style': style.apiValue,
     });
 
-    final response = await _httpClient.post(
-      uri,
-      headers: {
-        HttpHeaders.authorizationHeader: 'Bearer $apiKey',
-        HttpHeaders.contentTypeHeader: 'application/json',
-      },
-      body: requestBody,
-    );
+    final response = await _httpClient
+        .post(
+          baseUri,
+          headers: {
+            HttpHeaders.authorizationHeader: 'Bearer $apiKey',
+            HttpHeaders.contentTypeHeader: 'application/json',
+          },
+          body: requestBody,
+        )
+        .timeout(_timeout);
 
     if (response.statusCode == HttpStatus.ok) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -41,10 +47,14 @@ class IdeogramApiClient {
             (dynamic item) =>
                 GeneratedImage.fromJson(item as Map<String, dynamic>),
           )
+          .where((image) => image.isSecure)
           .toList();
     }
 
-    throw HttpException('Failed with status: ${response.statusCode}', uri: uri);
+    throw HttpException(
+      'Failed with status: ${response.statusCode}',
+      uri: baseUri,
+    );
   }
 }
 
@@ -114,4 +124,9 @@ class GeneratedImage {
   final String id;
   final String url;
   final String? prompt;
+
+  bool get isSecure {
+    final uri = Uri.tryParse(url);
+    return uri != null && uri.isScheme('https');
+  }
 }

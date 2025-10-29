@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ideogram_secure_app/api/ideogram_api_client.dart';
+import 'package:ideogram_secure_app/config/app_config.dart';
 import 'package:ideogram_secure_app/services/secure_storage_service.dart';
 import 'package:ideogram_secure_app/state/generation_state.dart';
 
@@ -22,7 +23,7 @@ class FakeSecureStorageService extends SecureStorageService {
 
 class FakeIdeogramApiClient extends IdeogramApiClient {
   FakeIdeogramApiClient(this._images)
-      : super(baseUrl: 'https://example.com/images');
+    : super(baseUri: Uri.parse('https://example.com/images'));
 
   final List<GeneratedImage> _images;
   bool wasCalled = false;
@@ -43,9 +44,15 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('GenerationState', () {
+    final config = AppConfig(
+      baseUrl: Uri.parse('https://example.com/images'),
+      requestTimeout: const Duration(seconds: 5),
+    );
+
     test('updateApiKey trims, validates, and persists the key', () async {
       final storage = FakeSecureStorageService();
       final state = GenerationState(
+        config: config,
         client: FakeIdeogramApiClient(const []),
         storage: storage,
       );
@@ -60,6 +67,7 @@ void main() {
     test('updateApiKey reports validation error for empty keys', () async {
       final storage = FakeSecureStorageService();
       final state = GenerationState(
+        config: config,
         client: FakeIdeogramApiClient(const []),
         storage: storage,
       );
@@ -73,7 +81,11 @@ void main() {
     test('generateImage guards against empty prompt and missing key', () async {
       final storage = FakeSecureStorageService();
       final client = FakeIdeogramApiClient(const []);
-      final state = GenerationState(client: client, storage: storage);
+      final state = GenerationState(
+        config: config,
+        client: client,
+        storage: storage,
+      );
 
       await state.generateImage(prompt: '', style: ImageStyle.cinematic);
 
@@ -89,12 +101,36 @@ void main() {
       expect(client.wasCalled, isTrue);
     });
 
+    test('generateImage validates aspect ratio bounds', () async {
+      final storage = FakeSecureStorageService();
+      final client = FakeIdeogramApiClient(const []);
+      final state = GenerationState(
+        config: config,
+        client: client,
+        storage: storage,
+      );
+
+      await state.updateApiKey('test-key');
+      await state.generateImage(
+        prompt: 'prompt',
+        style: ImageStyle.photorealistic,
+        aspectRatio: 10,
+      );
+
+      expect(state.error, 'Aspect ratio must be between 0.25 and 4.0.');
+      expect(client.wasCalled, isFalse);
+    });
+
     test('generateImage updates images on success', () async {
       final storage = FakeSecureStorageService();
       final client = FakeIdeogramApiClient(const [
         GeneratedImage(id: '1', url: 'https://example.com/1.png'),
       ]);
-      final state = GenerationState(client: client, storage: storage);
+      final state = GenerationState(
+        config: config,
+        client: client,
+        storage: storage,
+      );
 
       await state.updateApiKey('test-key');
       await state.generateImage(
@@ -107,9 +143,29 @@ void main() {
       expect(state.error, isNull);
     });
 
+    test('generateImage reports when no secure URLs are returned', () async {
+      final storage = FakeSecureStorageService();
+      final client = FakeIdeogramApiClient(const []);
+      final state = GenerationState(
+        config: config,
+        client: client,
+        storage: storage,
+      );
+
+      await state.updateApiKey('test-key');
+      await state.generateImage(prompt: 'prompt', style: ImageStyle.cinematic);
+
+      expect(state.images, isEmpty);
+      expect(
+        state.error,
+        'No secure image URLs were returned. Try another prompt.',
+      );
+    });
+
     test('importKeyFromJson handles malformed payloads gracefully', () async {
       final storage = FakeSecureStorageService();
       final state = GenerationState(
+        config: config,
         client: FakeIdeogramApiClient(const []),
         storage: storage,
       );

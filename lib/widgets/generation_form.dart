@@ -34,6 +34,7 @@ class _GenerationFormState extends State<GenerationForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         children: [
           TextFormField(
@@ -89,6 +90,7 @@ class _GenerationFormState extends State<GenerationForm> {
             child: FilledButton.icon(
               onPressed: () {
                 if (_formKey.currentState?.validate() ?? false) {
+                  FocusScope.of(context).unfocus();
                   final aspectRatio = double.parse(
                     _aspectRatioController.text.trim(),
                   );

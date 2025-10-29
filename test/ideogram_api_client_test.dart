@@ -13,7 +13,7 @@ void main() {
       late http.Request capturedRequest;
 
       final client = IdeogramApiClient(
-        baseUrl: 'https://example.com/images',
+        baseUri: Uri.parse('https://example.com/images'),
         httpClient: MockClient((request) async {
           capturedRequest = request;
           final body = jsonEncode({
@@ -54,7 +54,7 @@ void main() {
 
     test('throws HttpException when API returns non-200 status', () async {
       final client = IdeogramApiClient(
-        baseUrl: 'https://example.com/images',
+        baseUri: Uri.parse('https://example.com/images'),
         httpClient: MockClient(
           (_) async => http.Response('error', HttpStatus.badRequest),
         ),
@@ -68,6 +68,30 @@ void main() {
         ),
         throwsA(isA<HttpException>()),
       );
+    });
+
+    test('filters out non-secure image URLs from the response', () async {
+      final client = IdeogramApiClient(
+        baseUri: Uri.parse('https://example.com/images'),
+        httpClient: MockClient((_) async {
+          final body = jsonEncode({
+            'data': [
+              {'id': 'img-1', 'url': 'http://example.com/insecure.png'},
+              {'id': 'img-2', 'url': 'https://example.com/secure.png'},
+            ],
+          });
+          return http.Response(body, HttpStatus.ok);
+        }),
+      );
+
+      final images = await client.generateImage(
+        apiKey: 'test',
+        prompt: 'prompt',
+        style: ImageStyle.photorealistic,
+      );
+
+      expect(images, hasLength(1));
+      expect(images.first.url, 'https://example.com/secure.png');
     });
   });
 }
