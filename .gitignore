@@ -26,3 +26,6 @@ android/app/debug.keystore
 
 # Misc
 *.log
+
+# Auto-generated test directory
+test/

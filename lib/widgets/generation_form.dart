@@ -231,23 +231,23 @@ class _GenerationFormState extends State<GenerationForm>
         icon = Icons.camera_alt_rounded;
         color = PremiumTheme.softLavender;
         break;
-      case ImageStyle.anime:
+      case ImageStyle.cinematic:
         icon = Icons.animation_rounded;
         color = const Color(0xFFFF6B9D);
         break;
-      case ImageStyle.digital:
+      case ImageStyle.watercolor:
         icon = Icons.computer_rounded;
         color = const Color(0xFF4ECDC4);
         break;
-      case ImageStyle.fantasy:
+      case ImageStyle.concept:
         icon = Icons.auto_awesome_rounded;
         color = const Color(0xFFFFD93D);
         break;
-      case ImageStyle.vintage:
+      case ImageStyle.lineArt:
         icon = Icons.photo_filter_rounded;
         color = const Color(0xFFD4A373);
         break;
-      case ImageStyle.threeDimensional:
+      case ImageStyle.threeD:
         icon = Icons.view_in_ar_rounded;
         color = const Color(0xFF6C63FF);
         break;
