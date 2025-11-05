@@ -92,6 +92,7 @@ class IdeogramApiClient {
         'aspect_ratio': _getAspectRatioString(aspectRatio),
         'model': 'V_2',
         'magic_prompt_option': 'AUTO',
+        'style_type': style.apiValue,
       },
     });
 

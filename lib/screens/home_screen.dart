@@ -46,6 +46,13 @@ class HomeScreen extends StatelessWidget {
                       _buildGenerationForm(context),
                       const SizedBox(height: 24),
                       if (state.error != null) _buildErrorMessage(context, state.error!),
+                      if (state.images.isEmpty && !state.isLoading && state.error == null) ...[
+                        const SizedBox(height: 32),
+                        ScaleFadeIn(
+                          delay: const Duration(milliseconds: 300),
+                          child: const PremiumFeaturesShowcase(),
+                        ),
+                      ],
                       const SizedBox(height: 32),
                       _buildImageGallery(context, state),
                       const SizedBox(height: 32),
@@ -142,7 +149,7 @@ class HomeScreen extends StatelessWidget {
             // 3D Floating shapes background
             Positioned.fill(
               child: ClipRect(
-                child: Floating3DShapes(),
+                child: const Floating3DShapes(),
               ),
             ),
             // Hero content
