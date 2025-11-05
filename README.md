@@ -1,22 +1,30 @@
-# Ideogram Studio (Flutter)
+# AI Image Studio (Flutter)
 
-A secure, polished Flutter application for generating custom imagery via the Ideogram AI API. The app emphasizes secure credential storage, robust error handling, and a user-friendly workflow for personal creative projects.
+A secure, polished Flutter application for generating custom imagery via **multiple AI image generation APIs**. The app supports Ideogram, OpenAI DALL-E, Stability AI, and Replicate (Flux), with secure credential storage, robust error handling, and a user-friendly workflow for personal creative projects.
 
 ## ✨ Features
+
+### Multi-API Support 🎯 **NEW!**
+- 🔄 **4 AI Providers**: Ideogram, OpenAI DALL-E 3, Stability AI, Replicate (Flux)
+- 🔌 **Easy switching**: Change providers with a single tap
+- 💾 **Multiple API keys**: Store keys for all providers simultaneously
+- 🎨 **Provider-specific features**: Each provider's unique capabilities supported
 
 ### Security & API Management
 - 🔐 **Encrypted API key storage** using `flutter_secure_storage`
   - Platform-native keychain (iOS/macOS)
   - Encrypted shared preferences (Android)
-- 🔑 **Flexible key management**: Manual entry or JSON import
+  - Separate secure storage for each provider
+- 🔑 **Flexible key management**: Configure multiple providers at once
 - 🛡️ **Secure communication**: HTTPS-only API calls with Bearer token authentication
+- 🔄 **Automatic migration**: Legacy API keys automatically migrated
 
 ### Image Generation
-- ✨ **AI-powered image generation** via Ideogram API v2
-- 🎨 **6 predefined visual styles**: Cinematic, Watercolor, 3D Render, Line Art, Concept Art, Photorealistic
-- 📐 **Adjustable aspect ratios**: 1:1, 16:9, 3:4, 9:16, and custom ratios
+- ✨ **AI-powered image generation** via multiple providers
+- 🎨 **Multiple artistic styles**: Varies by provider (6-9 styles each)
+- 📐 **Flexible dimensions**: Aspect ratios and custom sizes (provider-dependent)
 - 🔄 **Automatic retry logic** with exponential backoff for network failures
-- ⏱️ **Configurable timeouts** (60s default) for API requests
+- ⏱️ **Configurable timeouts** (60-90s) for API requests
 
 ### User Experience
 - 📱 **Material 3 interface** optimized for Android
@@ -39,7 +47,11 @@ A secure, polished Flutter application for generating custom imagery via the Ide
 ### Prerequisites
 - Flutter 3.16 or newer
 - Dart SDK 3.2.0 or newer
-- An Ideogram API key ([Get one here](https://ideogram.ai))
+- At least one API key from any supported provider:
+  - **Ideogram**: https://ideogram.ai/api
+  - **OpenAI DALL-E**: https://platform.openai.com/api-keys
+  - **Stability AI**: https://platform.stability.ai/account/keys
+  - **Replicate**: https://replicate.com/account/api-tokens
 
 ### Installation
 
@@ -67,23 +79,30 @@ A secure, polished Flutter application for generating custom imagery via the Ide
 
 ## 🔑 API Key Setup
 
-### First Launch
+### First Launch - Multi-Provider Setup
 1. Tap the **key icon** (🔑) in the top AppBar
-2. Enter your Ideogram API key manually
-3. Click **Save** to securely store it
+2. Select your preferred provider from the list:
+   - **Ideogram** - High-quality with excellent text rendering
+   - **OpenAI DALL-E** - Advanced AI from OpenAI
+   - **Stability AI** - Powerful Stable Diffusion
+   - **Replicate (Flux)** - Fast and high-quality
+3. Expand the provider card and enter your API key
+4. (Optional) Configure additional providers for easy switching
+5. Click **Save** to securely store your settings
 
-### Alternative: JSON Import
-1. Tap the key icon, then **Import from JSON**
-2. Paste your JSON in this format:
-   ```json
-   { "ideogramApiKey": "your-api-key-here" }
-   ```
-3. Click **Import**
+### Switching Providers
+1. Tap the key icon
+2. Select a different provider (must have API key configured)
+3. Click **Save**
+4. The app header will show your current provider
 
-### Managing Your Key
-- **View**: Tap the key icon (shows obscured)
-- **Update**: Enter a new key and save
-- **Delete**: Tap the key icon, then **Delete** (also clears images)
+### Managing API Keys
+- **View**: Tap the key icon (keys shown as dots for security)
+- **Update**: Modify any provider's key and save
+- **Delete**: Clear the key field for a provider
+- **Multiple keys**: Store keys for all providers simultaneously
+
+> 📖 **For detailed setup instructions**, see [API_SETUP.md](./API_SETUP.md)
 
 ## 🎨 Using the App
 
@@ -126,17 +145,28 @@ For more details, see [Flutter's Android deployment documentation](https://docs.
 
 ```
 lib/
-├── main.dart                      # App entry point & theme configuration
+├── main.dart                          # App entry point & theme configuration
 ├── api/
-│   └── ideogram_api_client.dart   # API client with retry logic & error handling
+│   ├── base_image_provider.dart       # Abstract base for all providers
+│   ├── provider_factory.dart          # Factory for creating providers
+│   ├── ideogram_api_client.dart       # Legacy Ideogram client
+│   └── providers/
+│       ├── ideogram_provider.dart     # Ideogram implementation
+│       ├── openai_provider.dart       # OpenAI DALL-E implementation
+│       ├── stability_provider.dart    # Stability AI implementation
+│       └── replicate_provider.dart    # Replicate Flux implementation
 ├── screens/
-│   └── home_screen.dart           # Main UI with image gallery
+│   └── home_screen.dart               # Main UI with image gallery
 ├── services/
-│   └── secure_storage_service.dart # Encrypted key storage
+│   └── secure_storage_service.dart    # Multi-provider encrypted key storage
 ├── state/
-│   └── generation_state.dart      # State management (Provider)
-└── widgets/
-    └── generation_form.dart       # Image generation input form
+│   └── generation_state.dart          # State management (Provider pattern)
+├── widgets/
+│   ├── generation_form.dart           # Image generation input form
+│   ├── provider_settings_dialog.dart  # Multi-provider configuration UI
+│   └── premium_widgets.dart           # Reusable UI components
+└── theme/
+    └── premium_theme.dart             # App-wide theme configuration
 ```
 
 ## 🧪 Error Handling
@@ -149,15 +179,24 @@ The app provides specific error messages for:
 - **Server errors** (5xx): API server issues
 - **Validation errors**: Invalid prompts or parameters
 
-## 🌟 What's New
+## 🌟 What's New - Multi-API Support!
 
-This refined version includes:
+### Latest Updates
+- 🎯 **Multi-API Support**: Choose from 4 different AI image generation providers
+- 🔄 **Provider Switching**: Easily switch between APIs with preserved settings
+- 💾 **Multiple API Keys**: Store and manage keys for all providers simultaneously
+- 🎨 **Provider-Specific UI**: Settings dialog shows each provider's unique features
+- 📖 **Comprehensive Documentation**: Detailed API setup guide with comparison table
+- 🔐 **Enhanced Security**: Separate encrypted storage for each provider
+- 🔄 **Automatic Migration**: Legacy Ideogram keys automatically upgraded
+
+### Previous Features
 - ✨ **Image history accumulation** (no longer replaced on each generation)
 - 🔄 **Automatic retry** with exponential backoff
 - 🌓 **Dark mode support**
 - 👆 **Interactive image viewer** with copy/share
 - 🗑️ **Clear all images** functionality
-- ⏱️ **Timeout configuration** (60s)
+- ⏱️ **Timeout configuration** (60-90s)
 - 📝 **Comprehensive documentation** (dartdoc)
 - 🧪 **Strict lint rules** for code quality
 - 🎯 **Better error messages** with specific error types
