@@ -4,6 +4,9 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+// Export GeneratedImage from base provider for backward compatibility
+export 'base_image_provider.dart' show GeneratedImage;
+
 /// Custom exception for API-related errors
 class ApiException implements Exception {
   ApiException(this.message, {this.statusCode, this.details});
@@ -235,24 +238,4 @@ extension ImageStyleExtension on ImageStyle {
       orElse: () => ImageStyle.photorealistic,
     );
   }
-}
-
-class GeneratedImage {
-  const GeneratedImage({
-    required this.id,
-    required this.url,
-    this.prompt,
-  });
-
-  factory GeneratedImage.fromJson(Map<String, dynamic> json) {
-    return GeneratedImage(
-      id: json['id'] as String? ?? '',
-      url: json['url'] as String? ?? '',
-      prompt: json['prompt'] as String?,
-    );
-  }
-
-  final String id;
-  final String url;
-  final String? prompt;
 }
