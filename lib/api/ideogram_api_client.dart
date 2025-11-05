@@ -4,7 +4,8 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
-// Export GeneratedImage from base provider for backward compatibility
+// Import and export GeneratedImage from base provider
+import 'base_image_provider.dart';
 export 'base_image_provider.dart' show GeneratedImage;
 
 /// Custom exception for API-related errors
