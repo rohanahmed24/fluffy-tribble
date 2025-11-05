@@ -1,0 +1,117 @@
+version: 2.1
+
+# Define the Flutter orb for easier Flutter setup
+orbs:
+  flutter: circleci/flutter@1.1.0
+
+jobs:
+  build-apk:
+    # Use a machine executor with Android pre-installed
+    machine:
+      image: ubuntu-2204:2023.10.1
+
+    resource_class: medium
+
+    steps:
+      - checkout
+
+      # Install Flutter
+      - flutter/install_sdk_and_pub:
+          flutter_version: 3.16.0
+
+      # Create .env file (required by flutter_dotenv)
+      - run:
+          name: Create .env file
+          command: |
+            cat > .env << 'EOF'
+            # Multi-API Image Generation Configuration
+            # This file is required by flutter_dotenv
+
+            # Ideogram API Configuration (legacy - kept for backward compatibility)
+            IDEOGRAM_BASE_URL=https://api.ideogram.ai/v1/images
+
+            # Note: API keys are now stored securely per-provider using flutter_secure_storage
+            # You don't need to configure API keys here - they're managed through the app UI
+            EOF
+
+      # Get dependencies
+      - run:
+          name: Get Flutter dependencies
+          command: flutter pub get
+
+      # Run Flutter analyze
+      - run:
+          name: Analyze code
+          command: flutter analyze --no-fatal-infos || true
+
+      # Build APK (split per ABI for smaller files)
+      - run:
+          name: Build Release APK
+          command: flutter build apk --release --split-per-abi
+          no_output_timeout: 30m
+
+      # List built APKs
+      - run:
+          name: List built APKs
+          command: |
+            echo "Built APK files:"
+            ls -lh build/app/outputs/flutter-apk/
+
+      # Store APKs as artifacts
+      - store_artifacts:
+          path: build/app/outputs/flutter-apk/
+          destination: apks
+
+      # Save APKs to workspace for potential release job
+      - persist_to_workspace:
+          root: build/app/outputs/flutter-apk/
+          paths:
+            - "*.apk"
+
+  # Optional: Create GitHub release (requires GITHUB_TOKEN)
+  create-release:
+    docker:
+      - image: cibuilds/github:0.13
+    steps:
+      - attach_workspace:
+          at: ./apks
+      - run:
+          name: List APK files
+          command: ls -la ./apks/
+      - run:
+          name: Create GitHub Release
+          command: |
+            # Only run if this is a tag
+            if [ -n "$CIRCLE_TAG" ]; then
+              ghr -t ${GITHUB_TOKEN} \
+                  -u ${CIRCLE_PROJECT_USERNAME} \
+                  -r ${CIRCLE_PROJECT_REPONAME} \
+                  -c ${CIRCLE_SHA1} \
+                  -delete \
+                  ${CIRCLE_TAG} ./apks/
+            else
+              echo "Not a tag, skipping release creation"
+            fi
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build-apk:
+          filters:
+            branches:
+              only:
+                - main
+                - /claude\/.*/
+            tags:
+              only: /.*/
+
+      # Uncomment below to enable automatic GitHub releases on tags
+      # - create-release:
+      #     requires:
+      #       - build-apk
+      #     filters:
+      #       branches:
+      #         ignore: /.*/
+      #       tags:
+      #         only: /^v.*/

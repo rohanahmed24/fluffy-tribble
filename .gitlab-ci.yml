@@ -1,0 +1,37 @@
+image: cirrusci/flutter:stable
+
+stages:
+  - build
+  - deploy
+
+variables:
+  FLUTTER_VERSION: "3.16.0"
+
+before_script:
+  - flutter --version
+  - flutter pub get
+  # Create .env file
+  - echo "IDEOGRAM_BASE_URL=https://api.ideogram.ai/v1/images" > .env
+
+build_apk:
+  stage: build
+  script:
+    - flutter build apk --release --split-per-abi
+  artifacts:
+    paths:
+      - build/app/outputs/flutter-apk/*.apk
+    expire_in: 30 days
+  only:
+    - main
+    - /^claude\/.*$/
+
+# Optional: Deploy to GitLab Releases
+deploy_release:
+  stage: deploy
+  script:
+    - echo "Deploying release"
+  artifacts:
+    paths:
+      - build/app/outputs/flutter-apk/*.apk
+  only:
+    - tags

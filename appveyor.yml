@@ -1,0 +1,32 @@
+version: 1.0.{build}
+
+image: Ubuntu
+
+environment:
+  FLUTTER_VERSION: "3.16.0"
+
+install:
+  - git clone https://github.com/flutter/flutter.git -b stable --depth 1
+  - export PATH="$PATH:`pwd`/flutter/bin"
+  - flutter doctor -v
+  - flutter pub get
+
+build_script:
+  # Create .env file
+  - echo "IDEOGRAM_BASE_URL=https://api.ideogram.ai/v1/images" > .env
+  # Build APK
+  - flutter build apk --release --split-per-abi
+
+artifacts:
+  - path: build/app/outputs/flutter-apk/*.apk
+    name: APKs
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: YOUR_GITHUB_TOKEN_ENCRYPTED
+  artifact: APKs
+  draft: false
+  prerelease: false
+  on:
+    APPVEYOR_REPO_TAG: true
