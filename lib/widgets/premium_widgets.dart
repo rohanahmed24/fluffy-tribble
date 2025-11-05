@@ -928,10 +928,13 @@ class PremiumFeatureCard extends StatefulWidget {
 }
 
 class _PremiumFeatureCardState extends State<PremiumFeatureCard>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
+  late AnimationController _hoverController;
   late Animation<double> _floatAnimation;
   late Animation<double> _glowAnimation;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _rotateAnimation;
   bool _isHovered = false;
 
   @override
@@ -942,6 +945,11 @@ class _PremiumFeatureCardState extends State<PremiumFeatureCard>
       vsync: this,
     )..repeat(reverse: true);
 
+    _hoverController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
     _floatAnimation = Tween<double>(begin: -5, end: 5).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
@@ -949,21 +957,36 @@ class _PremiumFeatureCardState extends State<PremiumFeatureCard>
     _glowAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _hoverController, curve: Curves.easeOut),
+    );
+
+    _rotateAnimation = Tween<double>(begin: 0.0, end: 0.05).animate(
+      CurvedAnimation(parent: _hoverController, curve: Curves.easeOut),
+    );
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _hoverController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
+      onEnter: (_) {
+        setState(() => _isHovered = true);
+        _hoverController.forward();
+      },
+      onExit: (_) {
+        setState(() => _isHovered = false);
+        _hoverController.reverse();
+      },
       child: AnimatedBuilder(
-        animation: _controller,
+        animation: Listenable.merge([_controller, _hoverController]),
         builder: (context, child) {
           return Transform.translate(
             offset: Offset(0, _floatAnimation.value),
@@ -971,8 +994,8 @@ class _PremiumFeatureCardState extends State<PremiumFeatureCard>
               alignment: Alignment.center,
               transform: Matrix4.identity()
                 ..setEntry(3, 2, 0.001)
-                ..rotateY(_isHovered ? 0.05 : 0)
-                ..scale(_isHovered ? 1.05 : 1.0),
+                ..rotateY(_rotateAnimation.value)
+                ..scale(_scaleAnimation.value),
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -1033,7 +1056,7 @@ class _PremiumFeatureCardState extends State<PremiumFeatureCard>
                     const SizedBox(height: 16),
                     Text(
                       widget.title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,

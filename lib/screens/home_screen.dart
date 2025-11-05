@@ -146,7 +146,7 @@ class HomeScreen extends StatelessWidget {
             // 3D Floating shapes background
             Positioned.fill(
               child: ClipRect(
-                child: Floating3DShapes(),
+                child: const Floating3DShapes(),
               ),
             ),
             // Hero content
