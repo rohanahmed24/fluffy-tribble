@@ -1,5 +1,10 @@
 version: 1.0.{build}
 
+branches:
+  only:
+    - main
+    - /claude\/.*/
+
 image: Ubuntu
 
 environment:
