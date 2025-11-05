@@ -7,6 +7,7 @@ import '../api/ideogram_api_client.dart';
 import '../state/generation_state.dart';
 import '../widgets/generation_form.dart';
 import '../widgets/premium_widgets.dart';
+import '../widgets/provider_settings_dialog.dart';
 import '../theme/premium_theme.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -83,28 +84,30 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ShaderMask(
-                      shaderCallback: (bounds) => PremiumTheme.shimmerGradient.createShader(bounds),
-                      child: Text(
-                        'Ideogram',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                Consumer<GenerationState>(
+                  builder: (context, state, _) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ShaderMask(
+                        shaderCallback: (bounds) => PremiumTheme.shimmerGradient.createShader(bounds),
+                        child: Text(
+                          state.currentProviderInfo?.name ?? 'Image Generator',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      'AI Studio',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: PremiumTheme.softLavender,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 2,
+                      Text(
+                        'AI Studio',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: PremiumTheme.softLavender,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 2,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -346,169 +349,15 @@ class HomeScreen extends StatelessWidget {
     final state = context.read<GenerationState>();
     state.generateImage(
       prompt: prompt,
-      style: style,
+      legacyStyle: style,
       aspectRatio: aspectRatio,
     );
   }
 
   Future<void> _showApiKeyDialog(BuildContext context) async {
-    final state = context.read<GenerationState>();
-    final controller = TextEditingController(text: state.apiKey ?? '');
     await showDialog<void>(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: GlassCard(
-          borderRadius: 28,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      gradient: PremiumTheme.primaryGradient,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.vpn_key_rounded,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      'API Key',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: controller,
-                decoration: const InputDecoration(
-                  labelText: 'Ideogram API Key',
-                  hintText: 'ideogram-secret-...',
-                  prefixIcon: Icon(Icons.key, size: 20),
-                ),
-                obscureText: true,
-                enableSuggestions: false,
-                autocorrect: false,
-              ),
-              const SizedBox(height: 16),
-              TextButton.icon(
-                onPressed: () async {
-                  final jsonController = TextEditingController();
-                  await showDialog<void>(
-                    context: context,
-                    builder: (context) => Dialog(
-                      backgroundColor: Colors.transparent,
-                      child: GlassCard(
-                        borderRadius: 28,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Import from JSON',
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
-                            const SizedBox(height: 20),
-                            TextField(
-                              controller: jsonController,
-                              maxLines: 4,
-                              decoration: const InputDecoration(
-                                hintText: '{ "ideogramApiKey": "..." }',
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: const Text('Cancel'),
-                                ),
-                                const SizedBox(width: 12),
-                                PremiumGradientButton(
-                                  onPressed: () {
-                                    state.importKeyFromJson(jsonController.text);
-                                    Navigator.of(context).pop();
-                                  },
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 12,
-                                  ),
-                                  child: const Text(
-                                    'Import',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.file_upload_outlined, size: 18),
-                label: const Text('Import from JSON'),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton.icon(
-                    onPressed: () {
-                      state.deleteKey();
-                      Navigator.of(context).pop();
-                    },
-                    icon: const Icon(Icons.delete_outline, size: 18),
-                    style: TextButton.styleFrom(
-                      foregroundColor: const Color(0xFFFF6B6B),
-                    ),
-                    label: const Text('Delete'),
-                  ),
-                  Row(
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
-                      ),
-                      const SizedBox(width: 12),
-                      PremiumGradientButton(
-                        onPressed: () {
-                          state.updateApiKey(controller.text);
-                          Navigator.of(context).pop();
-                        },
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        child: const Text(
-                          'Save',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+      builder: (context) => const ProviderSettingsDialog(),
     );
   }
 
