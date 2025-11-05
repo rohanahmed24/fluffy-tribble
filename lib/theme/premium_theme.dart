@@ -245,7 +245,7 @@ class PremiumTheme {
       ),
 
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
@@ -357,7 +357,7 @@ class PremiumTheme {
       ),
 
       // Dialog Theme
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         elevation: 0,
         backgroundColor: cardBackground,
         shape: RoundedRectangleBorder(
