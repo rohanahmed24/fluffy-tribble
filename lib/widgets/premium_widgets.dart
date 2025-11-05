@@ -908,6 +908,227 @@ class _FloatingShapesPainter extends CustomPainter {
   bool shouldRepaint(_FloatingShapesPainter oldDelegate) => true;
 }
 
+/// Premium Animated Feature Card
+class PremiumFeatureCard extends StatefulWidget {
+  const PremiumFeatureCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+    this.gradient,
+    super.key,
+  });
+
+  final IconData icon;
+  final String title;
+  final String description;
+  final Gradient? gradient;
+
+  @override
+  State<PremiumFeatureCard> createState() => _PremiumFeatureCardState();
+}
+
+class _PremiumFeatureCardState extends State<PremiumFeatureCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _floatAnimation;
+  late Animation<double> _glowAnimation;
+  bool _isHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _floatAnimation = Tween<double>(begin: -5, end: 5).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _glowAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(0, _floatAnimation.value),
+            child: Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.001)
+                ..rotateY(_isHovered ? 0.05 : 0)
+                ..scale(_isHovered ? 1.05 : 1.0),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  gradient: widget.gradient ??
+                      LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          PremiumTheme.royalPurple.withOpacity(0.3),
+                          PremiumTheme.vibrantPurple.withOpacity(0.2),
+                        ],
+                      ),
+                  border: Border.all(
+                    color: _isHovered
+                        ? PremiumTheme.vibrantPurple.withOpacity(0.6)
+                        : Colors.white.withOpacity(0.2),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: PremiumTheme.vibrantPurple
+                          .withOpacity(0.3 * _glowAnimation.value),
+                      blurRadius: 20,
+                      spreadRadius: _isHovered ? 5 : 0,
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: PremiumTheme.primaryGradient,
+                        boxShadow: [
+                          BoxShadow(
+                            color: PremiumTheme.vibrantPurple
+                                .withOpacity(_glowAnimation.value * 0.6),
+                            blurRadius: 15,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        widget.icon,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      widget.title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.description,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white.withOpacity(0.7),
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Premium Features Showcase Widget
+class PremiumFeaturesShowcase extends StatelessWidget {
+  const PremiumFeaturesShowcase({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Row(
+            children: [
+              Container(
+                width: 4,
+                height: 24,
+                decoration: BoxDecoration(
+                  gradient: PremiumTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Premium Features',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 0.9,
+            children: const [
+              PremiumFeatureCard(
+                icon: Icons.auto_awesome,
+                title: 'AI-Powered',
+                description: 'State-of-the-art AI generates stunning images from text',
+              ),
+              PremiumFeatureCard(
+                icon: Icons.flash_on,
+                title: 'Lightning Fast',
+                description: 'Get professional results in seconds, not hours',
+              ),
+              PremiumFeatureCard(
+                icon: Icons.palette,
+                title: 'Multiple Styles',
+                description: 'Choose from 6 unique artistic styles for your vision',
+              ),
+              PremiumFeatureCard(
+                icon: Icons.security,
+                title: 'Secure & Private',
+                description: 'Your API keys are encrypted and stored securely',
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// Premium empty state widget
 class PremiumEmptyState extends StatelessWidget {
   const PremiumEmptyState({

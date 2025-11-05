@@ -45,6 +45,13 @@ class HomeScreen extends StatelessWidget {
                       _buildGenerationForm(context),
                       const SizedBox(height: 24),
                       if (state.error != null) _buildErrorMessage(context, state.error!),
+                      if (state.images.isEmpty && !state.isLoading && state.error == null) ...[
+                        const SizedBox(height: 32),
+                        ScaleFadeIn(
+                          delay: const Duration(milliseconds: 300),
+                          child: const PremiumFeaturesShowcase(),
+                        ),
+                      ],
                       const SizedBox(height: 32),
                       _buildImageGallery(context, state),
                       const SizedBox(height: 32),
