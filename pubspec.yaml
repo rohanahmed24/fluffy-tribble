@@ -1,5 +1,5 @@
 name: ideogram_secure_app
-description: A secure Flutter client for generating custom images via the Ideogram API.
+description: A cross-platform AI Image Studio for generating custom images via multiple AI providers (Ideogram, OpenAI DALL-E, Stability AI, Replicate)
 publish_to: 'none'
 version: 1.0.0+1
 environment:
@@ -24,3 +24,12 @@ flutter:
   assets:
     - assets/images/
     - .env
+
+# Platform Support
+# This app is designed to run on:
+# - Android (ARM64, ARMv7, x86_64)
+# - iOS (ARM64)
+# - Web (All modern browsers)
+# - Windows (x64)
+# - macOS (ARM64, x64)
+# - Linux (x64)

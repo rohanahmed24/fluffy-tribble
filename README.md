@@ -1,6 +1,19 @@
 # AI Image Studio (Flutter)
 
-A secure, polished Flutter application for generating custom imagery via **multiple AI image generation APIs**. The app supports Ideogram, OpenAI DALL-E, Stability AI, and Replicate (Flux), with secure credential storage, robust error handling, and a user-friendly workflow for personal creative projects.
+A **cross-platform mega application** for generating custom imagery via **multiple AI image generation APIs**. Built with Flutter, this app runs on **6 platforms**: Android, iOS, Web, Windows, macOS, and Linux. Features secure credential storage, robust error handling, and a beautiful responsive UI for all screen sizes.
+
+## 🌐 Platform Support
+
+| Platform | Status | Architecture | Distribution |
+|----------|--------|-------------|--------------|
+| 🤖 **Android** | ✅ Ready | ARM64, ARMv7, x86_64 | APK, Google Play |
+| 🍎 **iOS** | ✅ Ready | ARM64 | App Store, TestFlight |
+| 🌍 **Web** | ✅ Ready | All browsers | PWA, Direct hosting |
+| 🪟 **Windows** | ✅ Ready | x64 | Exe, Microsoft Store |
+| 🍏 **macOS** | ✅ Ready | ARM64, x64 | DMG, Mac App Store |
+| 🐧 **Linux** | ✅ Ready | x64 | AppImage, Snap, Flatpak |
+
+> **📖 Build Guide**: See [BUILD_GUIDE.md](BUILD_GUIDE.md) for detailed platform-specific build instructions.
 
 ## ✨ Features
 
