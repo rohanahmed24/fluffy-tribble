@@ -1,5 +1,5 @@
-name: ideogram_secure_app
-description: A cross-platform AI Image Studio for generating custom images via multiple AI providers (Ideogram, OpenAI DALL-E, Stability AI, Replicate)
+name: rogen
+description: Rogen - A gorgeous cross-platform AI Image Studio for generating stunning images with multiple AI providers (Ideogram, OpenAI DALL-E, Stability AI, Replicate)
 publish_to: 'none'
 version: 1.0.0+1
 environment:

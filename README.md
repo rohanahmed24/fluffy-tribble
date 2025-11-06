@@ -1,6 +1,6 @@
-# AI Image Studio (Flutter)
+# Rogen v1.0
 
-A **cross-platform mega application** for generating custom imagery via **multiple AI image generation APIs**. Built with Flutter, this app runs on **6 platforms**: Android, iOS, Web, Windows, macOS, and Linux. Features secure credential storage, robust error handling, and a beautiful responsive UI for all screen sizes.
+**Rogen** is a gorgeous **cross-platform AI Image Studio** for generating stunning imagery via **multiple AI providers**. Built with Flutter, Rogen runs on **6 platforms**: Android, iOS, Web, Windows, macOS, and Linux. Features premium desktop UI with glassmorphism effects, secure credential storage, and beautiful responsive design.
 
 ## 🌐 Platform Support
 

@@ -141,7 +141,7 @@ class _DesktopHomeScreenState extends State<DesktopHomeScreen>
                 shaderCallback: (bounds) => DesktopTheme.purpleGradient
                     .createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
                 child: const Text(
-                  'AI Studio',
+                  'Rogen',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -150,7 +150,7 @@ class _DesktopHomeScreenState extends State<DesktopHomeScreen>
                 ),
               ),
               Text(
-                'Pro',
+                'v1.0',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,

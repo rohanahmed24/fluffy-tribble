@@ -16,13 +16,13 @@ Future<void> main() async {
   runApp(
     ChangeNotifierProvider(
       create: (_) => GenerationState()..loadApiKey(),
-      child: const IdeogramApp(),
+      child: const RogenApp(),
     ),
   );
 }
 
-class IdeogramApp extends StatelessWidget {
-  const IdeogramApp({super.key});
+class RogenApp extends StatelessWidget {
+  const RogenApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class IdeogramApp extends StatelessWidget {
         : const HomeScreen();
 
     return MaterialApp(
-      title: 'AI Image Studio',
+      title: 'Rogen',
       debugShowCheckedModeBanner: false,
       theme: theme,
       home: home,

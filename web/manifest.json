@@ -1,11 +1,11 @@
 {
-    "name": "AI Image Studio",
-    "short_name": "AI Studio",
+    "name": "Rogen",
+    "short_name": "Rogen",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "Generate stunning images with multiple AI providers including Ideogram, OpenAI DALL-E, Stability AI, and Replicate",
+    "background_color": "#6366F1",
+    "theme_color": "#6366F1",
+    "description": "Rogen - Generate stunning images with multiple AI providers including Ideogram, OpenAI DALL-E, Stability AI, and Replicate",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
