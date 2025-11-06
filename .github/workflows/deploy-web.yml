@@ -1,0 +1,39 @@
+name: Deploy Rogen to GitHub Pages
+
+on:
+  push:
+    branches:
+      - claude/critical-build-fixes-011CUp3qo2ePC26sidaZYUqh
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.16.0'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Enable web
+        run: flutter config --enable-web
+
+      - name: Build web
+        run: flutter build web --release --base-href "/fluffy-tribble/"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          publish_branch: gh-pages
+          cname: # Add your custom domain here if you have one
